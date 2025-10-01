@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA OTP Viewer Pro</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --container-bg: #161b22;
+            --input-bg: #010409;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #7d8590;
+            --purple-accent: #8250DF;
+            --green-valid: #2da44e;
+            --red-invalid: #cf222e;
+        }
+        body {
+            background-image: radial-gradient(circle at 1% 1%, rgba(130, 80, 223, 0.2), rgba(130, 80, 223, 0) 25%),
+                              radial-gradient(circle at 99% 99%, rgba(130, 80, 223, 0.2), rgba(130, 80, 223, 0) 25%);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--container-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        h2 { margin-top: 0; margin-bottom: 2rem; }
+        .label-group { display: flex; align-items: center; margin-bottom: 0.75rem; }
+        label { color: var(--text-secondary); font-weight: 500; text-align: left; }
+        .tooltip-icon { margin-left: 8px; color: var(--text-secondary); cursor: pointer; border: 1px solid var(--text-secondary); border-radius: 50%; width: 18px; height: 18px; font-size: 12px; display: inline-flex; justify-content: center; align-items: center; }
+        #secret-key-input { width: 100%; padding: 0.8rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 1.1rem; font-family: monospace; text-align: center; margin-bottom: 2rem; transition: border-color 0.3s, box-shadow 0.3s; }
+        #secret-key-input:focus { outline: none; border-color: var(--purple-accent); box-shadow: 0 0 0 3px rgba(130, 80, 223, 0.3); }
+        #secret-key-input.valid { border-color: var(--green-valid); }
+        #secret-key-input.invalid { border-color: var(--red-invalid); }
+        .otp-display-wrapper { position: relative; }
+        #otp-display { font-size: 3.5rem; font-weight: bold; letter-spacing: 8px; color: var(--text-primary); background-color: var(--input-bg); padding: 1.5rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-family: monospace; transition: color 0.3s ease; }
+        #otp-display.invalid { color: var(--text-secondary); }
+        #copy-otp-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem; opacity: 0.5; transition: opacity 0.2s, color 0.2s; }
+        #copy-otp-btn:hover { opacity: 1; color: var(--purple-accent); }
+        .timer-bar-container { width: 100%; height: 8px; background-color: var(--input-bg); border-radius: 4px; overflow: hidden; }
+        #otp-timer-bar { height: 100%; width: 100%; background-color: var(--purple-accent); border-radius: 4px; transition: width 1s linear, background-color 0.5s linear; }
+        #otp-timer-bar.warning { background-color: var(--red-invalid); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>2FA OTP Viewer</h2>
+        <div>
+            <div class="label-group">
+                <label for="secret-key-input">Kunci Rahasia 2FA (Base32)</label>
+                <span class="tooltip-icon" title="Ini adalah kunci rahasia (biasanya berupa teks panjang atau QR code) yang Anda dapatkan saat mengaktifkan 2FA di sebuah layanan.">?</span>
+            </div>
+            <input type="text" id="secret-key-input" placeholder="Paste your Base32 secret key" autofocus>
+        </div>
+        
+        <div class="otp-display-wrapper">
+            <div id="otp-display" class="invalid">------</div>
+            <button id="copy-otp-btn" title="Salin OTP">📋</button>
+        </div>
+        <div class="timer-bar-container">
+            <div id="otp-timer-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        // === ELEMEN DOM ===
+        const secretInput = document.getElementById('secret-key-input');
+        const otpDisplay = document.getElementById('otp-display');
+        const otpTimerBar = document.getElementById('otp-timer-bar');
+        const copyBtn = document.getElementById('copy-otp-btn');
+
+        // === FUNGSI HELPER: DECODE BASE32 ===
+        function base32tohex(base32) {
+            const base32chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+            let bits = "";
+            let hex = "";
+            for (let i = 0; i < base32.length; i++) {
+                const val = base32chars.indexOf(base32.charAt(i).toUpperCase());
+                if (val < 0) return null; // Karakter tidak valid
+                bits += val.toString(2).padStart(5, '0');
+            }
+            for (let i = 0; i + 8 <= bits.length; i += 8) {
+                const chunk = bits.substr(i, 8);
+                hex += parseInt(chunk, 2).toString(16).padStart(2, '0');
+            }
+            return hex;
+        }
+
+        // === FUNGSI UTAMA: MENGHITUNG OTP ===
+        async function getOtp(secretHex) {
+            try {
+                const keyBuffer = new Uint8Array(secretHex.match(/[\da-f]{2}/gi).map(h => parseInt(h, 16)));
+                const timeStep = Math.floor(Date.now() / 30000);
+                const timeStepBuffer = new ArrayBuffer(8);
+                const timeStepView = new DataView(timeStepBuffer);
+                timeStepView.setUint32(0, Math.floor(timeStep / 0x100000000), false);
+                timeStepView.setUint32(4, timeStep % 0x100000000, false);
+
+                const cryptoKey = await window.crypto.subtle.importKey(
+                    'raw', keyBuffer, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']
+                );
+                const hmacResult = await window.crypto.subtle.sign('HMAC', cryptoKey, timeStepBuffer);
+                
+                const hmacBytes = new Uint8Array(hmacResult);
+                const offset = hmacBytes[hmacBytes.length - 1] & 0x0F;
+                const truncatedHash = (hmacBytes[offset] & 0x7F) << 24 |
+                                      (hmacBytes[offset + 1] & 0xFF) << 16 |
+                                      (hmacBytes[offset + 2] & 0xFF) << 8 |
+                                      (hmacBytes[offset + 3] & 0xFF);
+                
+                return (truncatedHash % 1000000).toString().padStart(6, '0');
+            } catch (error) {
+                console.error("OTP Generation Error:", error);
+                return null;
+            }
+        }
+
+        // === FUNGSI UI ===
+        async function updateDisplay() {
+            const secret = secretInput.value.replace(/\s/g, '').toUpperCase();
+            
+            secretInput.classList.remove('valid', 'invalid');
+
+            if (!secret || secret.length < 16) {
+                otpDisplay.textContent = "------";
+                otpDisplay.classList.add('invalid');
+                return;
+            }
+
+            const secretHex = base32tohex(secret);
+            if (!secretHex) {
+                otpDisplay.textContent = "Invalid";
+                otpDisplay.classList.add('invalid');
+                secretInput.classList.add('invalid');
+                return;
+            }
+
+            const token = await getOtp(secretHex);
+            
+            if (token === null) {
+                 otpDisplay.textContent = "Error";
+                 otpDisplay.classList.add('invalid');
+                 secretInput.classList.add('invalid');
+            } else {
+                otpDisplay.textContent = token;
+                otpDisplay.classList.remove('invalid');
+                secretInput.classList.add('valid');
+            }
+        }
+        
+        function updateTimer() {
+            const remainingSeconds = 30 - (Math.floor(Date.now() / 1000) % 30);
+            const percentage = (remainingSeconds / 30) * 100;
+            otpTimerBar.style.width = `${percentage}%`;
+
+            // Ubah warna bar saat waktu hampir habis
+            if (remainingSeconds <= 5) {
+                otpTimerBar.classList.add('warning');
+            } else {
+                otpTimerBar.classList.remove('warning');
+            }
+        }
+
+        // === EVENT LISTENERS ===
+        setInterval(() => {
+            updateDisplay();
+            updateTimer();
+        }, 1000);
+
+        secretInput.addEventListener('input', updateDisplay);
+
+        copyBtn.addEventListener('click', () => {
+            const otp = otpDisplay.textContent;
+            if (otp && !isNaN(otp)) {
+                navigator.clipboard.writeText(otp).then(() => {
+                    copyBtn.textContent = '✅';
+                    setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

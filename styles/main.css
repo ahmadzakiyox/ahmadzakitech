@@ -1,0 +1,206 @@
+/* === VARIABLE & GLOBAL STYLES === */
+:root {
+    --sidebar-width: 280px; /* Lebar sidebar kita */
+
+    /* Anda bisa memilih tema warna di sini (gelap atau terang) */
+    /* TEMA GELAP GRADASI (AKTIF) */
+    --bg-color-start: #0D1117;
+    --bg-color-end: #301955;
+    --primary-purple: #8250DF;
+    --text-heading: #E6EDF3;
+    --text-body: #7D8590;
+    --card-bg: #161B22;
+    --border-color: #30363d;
+    --header-bg: rgba(13, 17, 23, 0.8);
+    --shadow-color: rgba(130, 80, 223, 0.3);
+
+    --font-heading: 'Archivo Black', sans-serif;
+    --font-body: 'Montserrat', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--text-body);
+    line-height: 1.6;
+    background-color: var(--bg-color-start);
+    background-image: linear-gradient(135deg, var(--bg-color-start) 0%, var(--bg-color-end) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* === NEW SIDEBAR LAYOUT (Desktop) === */
+.main-header {
+    background-color: var(--header-bg);
+    backdrop-filter: blur(10px);
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-right: 1px solid var(--border-color);
+    padding: 2.5rem 0;
+    z-index: 1000;
+}
+
+.main-header nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.main-header .logo {
+    font-family: var(--font-heading);
+    color: var(--text-heading);
+    text-decoration: none;
+    font-size: 2rem;
+    margin-bottom: 3rem;
+}
+
+.main-header ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+.main-header ul a {
+    color: var(--text-body);
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    padding: 1rem 2rem;
+    width: 100%;
+    text-align: center;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.main-header ul a:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-heading);
+}
+
+.main-header ul a.active {
+    color: var(--primary-purple);
+    border-left-color: var(--primary-purple);
+}
+
+/* === MAIN CONTENT AREA (Pushed to the right) === */
+main, .main-footer {
+    margin-left: var(--sidebar-width); /* Mendorong konten ke kanan */
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.main-footer {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.page-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    color: var(--text-heading);
+}
+
+.page-container h1 {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* === HERO SECTION (Adjusted Padding) === */
+.hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 0 5%;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+/* ... (sisa style hero section, skills, etc. tetap sama) ... */
+.hero-content{flex-basis:61.8%}.hero-image{flex-basis:38.2%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem}.hero-image img{max-width:350px;width:100%;border-radius:50%;border:3px solid var(--primary-purple);box-shadow:0 0 25px var(--shadow-color);transition:all .3s ease;filter:grayscale(30%)}.hero-image img:hover{transform:scale(1.05);filter:grayscale(0)}.main-name{font-family:var(--font-heading);font-size:clamp(2.5rem,8vw,5rem);color:var(--text-heading);line-height:1.1;margin-bottom:.5rem}.role-text{font-size:1.5rem;color:var(--text-heading);font-weight:700;min-height:2.2rem}.role-text .typed-cursor{color:var(--primary-purple)}.description{font-size:1.1rem;max-width:600px;margin:1rem 0}.cta-buttons{margin-top:2rem}.btn{display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:1rem;transition:all .3s ease}.btn-primary{background-color:var(--primary-purple);color:#fff}.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 20px var(--shadow-color)}.btn-secondary{background-color:transparent;color:var(--primary-purple);border:2px solid var(--primary-purple)}.btn-secondary:hover{background-color:var(--primary-purple);color:#fff}.content-section{padding:4rem 5%;max-width:1100px;margin:0 auto;text-align:center}.content-section h2{font-family:var(--font-heading);font-size:2.5rem;color:var(--text-heading);margin-bottom:2rem}.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1.5rem;justify-content:center}.skill-item{background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:1.5rem 1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;transition:all .3s ease}.skill-item:hover{transform:translateY(-5px);border-color:var(--primary-purple);box-shadow:0 8px 15px rgba(0,0,0,.2)}.skill-item i{font-size:3.5rem;line-height:1}.skill-item p{color:var(--text-heading);font-weight:700;font-size:.9rem;margin:0}.main-footer{text-align:center;border-top:1px solid var(--border-color)}.social-icons{display:flex;justify-content:center;gap:1.5rem}.social-icons a{color:var(--text-body);text-decoration:none;font-size:1.75rem;transition:all .3s ease}.social-icons a:hover{color:var(--primary-purple);transform:scale(1.2) translateY(-3px)}
+
+/* === RESPONSIVE DESIGN (Mobile View) === */
+@media (max-width: 992px) {
+    /* Kembalikan header menjadi navbar horizontal di atas */
+    .main-header {
+        width: 100%;
+        height: auto;
+        padding: 1rem 5%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .main-header nav {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .main-header .logo {
+        margin-bottom: 0;
+        font-size: 1.5rem;
+    }
+
+    .main-header ul {
+        /* Sembunyikan menu untuk hamburger (langkah selanjutnya) */
+        /* Untuk sekarang, kita buat horizontal saja */
+        flex-direction: row;
+        gap: 1rem;
+        width: auto;
+    }
+    .main-header ul a {
+        padding: 0.5rem 0;
+        border-left: none;
+        text-align: left;
+    }
+     .main-header ul a.active {
+        border-left-color: transparent;
+    }
+
+    /* Kembalikan margin konten ke 0 */
+    main, .main-footer {
+        margin-left: 0;
+    }
+
+    /* Tambahkan padding atas agar konten tidak tertutup header */
+    main {
+        padding-top: 80px; 
+    }
+
+    /* Tweak Hero Section untuk mobile */
+    .hero-section {
+        flex-direction: column-reverse;
+        text-align: center;
+        min-height: auto;
+        padding: 4rem 2rem;
+    }
+    .hero-image img {
+        max-width: 250px;
+    }
+
+    /* Sembunyikan menu di layar yang lebih kecil lagi (persiapan hamburger) */
+    @media (max-width: 768px) {
+        .main-header ul {
+            display: none; 
+        }
+    }
+}
+
+.container{width:100%;max-width:480px;background:var(--container-bg);padding:2.5rem;border-radius:8px;border:1px solid var(--border-color);text-align:center}h2{margin-top:0;margin-bottom:2rem}label{display:block;margin-bottom:.75rem;color:var(--text-secondary);font-weight:500;text-align:left}#secret-key-input{width:100%;padding:.8rem;background-color:var(--input-bg);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:1.1rem;font-family:monospace;text-align:center;margin-bottom:2rem}#secret-key-input:focus{outline:none;border-color:var(--purple-accent);box-shadow:0 0 0 3px rgba(130,80,223,.3)}#otp-display{font-size:3.5rem;font-weight:700;letter-spacing:8px;color:var(--text-primary);background-color:var(--input-bg);padding:1.5rem 1rem;border-radius:8px;margin-bottom:1rem;font-family:monospace;transition:color .3s ease}#otp-display.invalid{color:var(--text-secondary)}.timer-bar-container{width:100%;height:8px;background-color:var(--input-bg);border-radius:4px;overflow:hidden}#otp-timer-bar{height:100%;width:100%;background-color:var(--purple-accent);border-radius:4px;transition:width 1s linear}
